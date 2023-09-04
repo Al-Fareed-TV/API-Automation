@@ -1,34 +1,27 @@
 package tests;
 
-import org.json.simple.JSONObject;
+
+import files.Payload;
+import io.restassured.path.json.JsonPath;
 
 import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.*;
 
 public class GoogleAPITesting {
     public static void main(String[] args) {
-//        JSONObject data = new JSONObject();
 
         baseURI = "https://rahulshettyacademy.com";
-        given().log().all().queryParam("key","qaclick123")
+        String response = given().log().all().queryParam("key","qaclick123")
                 .header("Content-Type","application/json")
-                .body("{\r\n" +
-                        "  \"location\": {\r\n" +
-                        "    \"lat\": -38.383494,\r\n" +
-                        "    \"lng\": 33.427362\r\n" +
-                        "  },\r\n" +
-                        "  \"accuracy\": 50,\r\n" +
-                        "  \"name\": \"Rahul Shetty Academy\",\r\n" +
-                        "  \"phone_number\": \"(+91) 983 893 3937\",\r\n" +
-                        "  \"address\": \"29, side layout, cohen 09\",\r\n" +
-                        "  \"types\": [\r\n" +
-                        "    \"shoe park\",\r\n" +
-                        "    \"shop\"\r\n" +
-                        "  ],\r\n" +
-                        "  \"website\": \"http://rahulshettyacademy.com\",\r\n" +
-                        "  \"language\": \"French-IN\"\r\n" +
-                        "}\r\n")
+                .body(Payload.addPlace())
                 .when().post("maps/api/place/add/json")
-                .then().log().all().statusCode(200);
+                .then().log().all().statusCode(200)
+                .assertThat().body("scope",equalTo("APP"))
+                .extract().response().asString();
+        System.out.println("Got the response : " + response );
+        JsonPath js = new JsonPath(response);
+        String placeId = js.getString("place_id");
+        System.out.println("Place ID :" + placeId);
     }
 }
