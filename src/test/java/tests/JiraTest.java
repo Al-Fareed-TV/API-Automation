@@ -19,14 +19,14 @@ public class JiraTest {
                 .post("rest/auth/1/session")
                 .then().log().all().extract().asString();
 //10104
-//        given().pathParam("key","10104").header("Content-Type","application/json")
-//                .body("{\n" +
-//                        "    \"body\": \"Jaldi wahaan se hato\",\n" +
-//                        "    \"visibility\": {\n" +
-//                        "        \"type\": \"role\",\n" +
-//                        "        \"value\": \"Administrators\"\n" +
-//                        "    }\n" +
-//                        "}").filter(session).when().post("rest/api/2/issue/{key}/comment").then().statusCode(201);
+        given().pathParam("key","10104").header("Content-Type","application/json")
+                .body("{\n" +
+                        "    \"body\": \"Jaldi wahaan se hato\",\n" +
+                        "    \"visibility\": {\n" +
+                        "        \"type\": \"role\",\n" +
+                        "        \"value\": \"Administrators\"\n" +
+                        "    }\n" +
+                        "}").filter(session).when().post("rest/api/2/issue/{key}/comment").then().statusCode(201);
 
         given().header("X-Atlassian-Token","no-check")
                 .filter(session).pathParam("key","10104")
@@ -34,5 +34,12 @@ public class JiraTest {
                 .multiPart("file",new File("/Users/testvagrant/Documents/API Testing/src/test/java/tests/jira.txt"))
                 .when().post("rest/api/2/issue/{key}/attachments")
                 .then().log().all().statusCode(200);
+
+        String issueDetails = given().filter(session).pathParam("key", "10104")
+                .queryParam("fields", "comment")
+                .log().all()
+                .when().get("/rest/api/2/issue/{key}")
+                .then().log().all().extract().response().asString();
+        System.out.println("Issue Details : "+issueDetails);
     }
 }
